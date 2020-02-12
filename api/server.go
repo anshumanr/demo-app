@@ -37,7 +37,6 @@ func GetServerInstance(restPort int, log zl.ZeroLogger) *Server {
 func (s *Server) StartServer() error {
 
 	s.restServer.POST("/events", s.eventHandler)
-	s.restServer.GET("/ws", s.handleWebsocket)
 
 	//start rest server
 	go func(port int) {

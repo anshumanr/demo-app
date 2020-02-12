@@ -24,6 +24,8 @@ func main() {
 
 	logger := log.CreateLogger("../../logs/proxy.log", 20, 1, 28, false)
 
+	api.StartWebsocketServer()
+
 	r := api.GetServerInstance(9876, logger)
 	r.StartServer()
 
