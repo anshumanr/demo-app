@@ -87,29 +87,37 @@ func read(ctx context.Context, c *websocket.Conn) {
 		if val.Kind() == reflect.Map {
 			for _, key := range val.MapKeys() {
 				k1 := key.String()
-				v1 := val.MapIndex(key)
-				v2 := fmt.Sprintf("%s", v1)
+				v1 := fmt.Sprintf("%s", val.MapIndex(key))
 
 				switch k1 {
-				case "msgtype":
-					fmt.Printf("%s", v2)
-					if v2 == "MAKECALL" {
-						url = "localhost:8888/v1.0/accounts/123/call/"
-					}
+
 				case "numberToDial":
-					m["to"] = v2
+					m["to"] = v1
 				case "sessionId":
-					m["request_uuid"] = v2
+					m["request_uuid"] = v1
 				default:
-					m[k1] = v2
+					m[k1] = v1
 				}
 			}
 		}
 
-		headers := map[string]string{
-			contentType: contentTypeJSON,
+		switch m["msgtype"] {
+		case "MAKECALL":
+			url = "localhost:8888/v1.0/accounts/123/call/"
+			headers := map[string]string{
+				contentType: contentTypeJSON,
+			}
+			post(m, url, headers)
+		case "HOLD":
+			url = "localhost:8888/v1.0/accounts/123/call/hold/" + m["request_uuid"]
+			post(nil, url, nil)
+		case "RESUME":
+			url = "localhost:8888/v1.0/accounts/123/call/unhold/" + m["request_uuid"]
+			post(nil, url, nil)
+		case "DISCONNECT":
+			url = "localhost:8888/v1.0/accounts/123/call/" + m["request_uuid"]
+			delete(url)
 		}
-		post(m, url, headers)
 
 		fmt.Println("received: ", v, "---", m)
 	}

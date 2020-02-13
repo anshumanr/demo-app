@@ -82,6 +82,30 @@ func get(HTTPUrl string) ([]byte, error) {
 	return body, err
 }
 
+func delete(HTTPUrl string) error {
+
+	url := formatURL(HTTPUrl)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
+	//close body when finished
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	return err
+}
+
 func getWithQueryParams(HTTPUrl string, queryParamMap map[string]string) ([]byte, error) {
 
 	if len(queryParamMap) > 0 {
